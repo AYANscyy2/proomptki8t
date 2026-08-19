@@ -1,4 +1,5 @@
 import { GraphQLScalarType, Kind } from 'graphql';
+import { createExperiment, stopExperiment, assignVariant } from '../db/experiments';
 import {
   createPrompt, createVersion, activateVersion,
   getActivePrompt, listVersions,
@@ -46,6 +47,13 @@ export const resolvers = {
     modelConfig: (parent: any) => parent.model_config,
     createdAt: (parent: any) => parent.created_at,
   },
+  Experiment: {
+  promptId: (parent: any) => parent.prompt_id,
+  variantAVersionId: (parent: any) => parent.variant_a_version_id,
+  variantBVersionId: (parent: any) => parent.variant_b_version_id,
+  splitRatio: (parent: any) => parent.split_ratio,
+  createdAt: (parent: any) => parent.created_at,
+},
 
   Query: {
     prompt: async (_: any, args: { slug: string }, ctx: GraphQLContext) => {
@@ -54,6 +62,9 @@ export const resolvers = {
     promptVersions: async (_: any, args: { promptId: string }) => {
       return listVersions(args.promptId);
     },
+    assignedVersion: async (_: any, args: { promptId: string; subjectId: string }) => {
+  return assignVariant(args.promptId, args.subjectId);
+},
   },
 
   Mutation: {
@@ -73,5 +84,18 @@ export const resolvers = {
     activateVersion: async (_: any, args: { promptId: string; versionId: string }) => {
       return activateVersion(args.promptId, args.versionId);
     },
+    createExperiment: async (_: any, args: {
+  promptId: string; variantAVersionId: string; variantBVersionId: string; splitRatio?: number;
+}) => {
+  return createExperiment({
+    prompt_id: args.promptId,
+    variant_a_version_id: args.variantAVersionId,
+    variant_b_version_id: args.variantBVersionId,
+    split_ratio: args.splitRatio ?? 0.5,
+  });
+},
+stopExperiment: async (_: any, args: { experimentId: string }) => {
+  return stopExperiment(args.experimentId);
+},
   },
 };

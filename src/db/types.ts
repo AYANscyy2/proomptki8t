@@ -33,3 +33,21 @@ export const CreateVersionInput = z.object({
   variables: z.array(z.string()).default([]),
 model_config: z.record(z.string(), z.any()).default({}),
 });
+
+export const ExperimentSchema = z.object({
+  id: z.string().uuid(),
+  prompt_id: z.string().uuid(),
+  variant_a_version_id: z.string().uuid(),
+  variant_b_version_id: z.string().uuid(),
+  split_ratio: z.number().min(0).max(1),
+  status: z.enum(['running', 'stopped']),
+  created_at: z.string(),
+});
+export type Experiment = z.infer<typeof ExperimentSchema>;
+
+export const CreateExperimentInput = z.object({
+  prompt_id: z.string().uuid(),
+  variant_a_version_id: z.string().uuid(),
+  variant_b_version_id: z.string().uuid(),
+  split_ratio: z.number().min(0).max(1).default(0.5),
+});

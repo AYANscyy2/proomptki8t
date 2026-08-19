@@ -21,9 +21,26 @@ export const typeDefs = /* GraphQL */ `
     versions: [PromptVersion!]!
   }
 
+  type AssignedVersion {
+    version: PromptVersion!
+    experimentId: ID
+    variant: String
+  }
+
+  type Experiment {
+    id: ID!
+    promptId: ID!
+    variantAVersionId: ID!
+    variantBVersionId: ID!
+    splitRatio: Float!
+    status: String!
+    createdAt: String!
+  }
+
   type Query {
     prompt(slug: String!): Prompt
     promptVersions(promptId: ID!): [PromptVersion!]!
+    assignedVersion(promptId: ID!, subjectId: String!): AssignedVersion!
   }
 
   type Mutation {
@@ -35,5 +52,12 @@ export const typeDefs = /* GraphQL */ `
       modelConfig: JSON
     ): PromptVersion!
     activateVersion(promptId: ID!, versionId: ID!): Prompt!
+    createExperiment(
+      promptId: ID!
+      variantAVersionId: ID!
+      variantBVersionId: ID!
+      splitRatio: Float
+    ): Experiment!
+    stopExperiment(experimentId: ID!): Experiment!
   }
 `;
